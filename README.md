@@ -23,7 +23,7 @@ Redux 是一个数据流管理框架，用与控制整个应用的数据流向�
 -   `dispatch(action)` 首先会分配到**MiddleWare**里面，做一些其他操作，**MiddleWare**之后进入 `reducer` 进行改变`state`
 -   整个改变 state 的过程都是纯函数，同一输入同一输出
 
-> 下面简单介绍`redux`各个知识点，详细参见官方文档: (redux)[https://www.redux.org.cn/]
+> 下面简单介绍`redux`各个知识点，详细参见官方文档: [redux](https://www.redux.org.cn/)
 
 #### action
 
@@ -95,6 +95,5 @@ effect 是一堆异步操作的`Map`集合，也就是形成了`action.type`与�
 
 `dispatch(action(type: 'A'))`------> `effectMiddleWare({A: (){ 执行异步函数……}})` -----> `reducer()` ------> `newState`
 
-redux 整体示意流程图如下：
 
-!()[https://www.didierboelens.com/images/models_redux_animation.gif]
+![redux 整体示意流程图如下：](https://www.didierboelens.com/images/models_redux_animation.gif)
