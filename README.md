@@ -41,6 +41,8 @@ Redux 是一个数据流管理框架，用与控制整个应用的数据流向�
 `reducer` 接收旧的`state`和指定标识符的`action`为参数， 返回新的`state`;`(oldState, action) => newState`;这也是改变`state`唯一的方式；
 
 > 这里需要注意引用指针问题，一般`state`为引用类型数据，改变某些属性值并不能生成新的`state`, 一般我们会对`state`进行克隆。
+> 这里还需注意因为克隆导致改变`state`其中某一个数据，就要重新计算整个`state`数据, 从而造成不必要的复杂度计算，为了解决这个问题，我们一般将
+> `Reselect`库，只改变相关联数据，其他不相关数据直接读取。其实现思想也是运用了纯函数，将之前的函数运行结果缓存一份，下次比较参数，若相等则读取缓存，若不同，重新计算
 
 ```dart
 int counterReducer(int state, dynamic action) {
@@ -91,9 +93,71 @@ function createThunkMiddleware(extraArgument) {
 
 #### effect
 
-effect 是一堆异步操作的`Map`集合，也就是形成了`action.type`与异步操作的映射， 将`dispatch`过来的`action`通过 action 的标识符与固定的异步函数相关联：
+effect 的始祖正是强大的 redux 中间件`redux-saga`, 它是一堆异步操作的`Map`集合，也就是形成了`action.type`与异步操作的映射， 将`dispatch`过来的`action`通过 action 的标识符与固定的异步函数相关联：
 
 `dispatch(action(type: 'A'))`------> `effectMiddleWare({A: (){ 执行异步函数……}})` ----->
 `reducer(oldState, action)`------> `newState`
 
 ![redux 整体示意流程图如下：](https://www.didierboelens.com/images/models_redux_animation.gif)
+
+### flutter-redux
+
+flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux，当然前面提到的几点性能优化的地方，包括中间件的编写，也可以由开发人员自由发挥。我们这里简单实现一个: 0 to 1;
+
+#### action
+
+```dart
+    enum Actions { increment }
+    class Case2ActionCreator {
+        static Action add(int value) {
+            return Action(Actions.increment, payload: value);
+        }
+    }
+```
+
+#### reducer
+
+```dart
+    int counterReducer(int state, dynamic action) {
+        if (action == Actions.increment) {
+            return action.payload;
+        }
+        return state;
+    }
+```
+
+#### view 里面使用 state
+
+```dart
+Widget build(BuildContext context) {
+    return new StoreProvider<int>(
+        store: store,
+        child: new Column(
+            children:[
+                new StoreConnector<int, String>(
+                    converter: (store) => store.state.toString(),
+                    builder: (context, count) {
+                        return new Text(
+                            count,
+                        );
+                    },
+                );
+                new StoreConnector<int, VoidCallback>(
+                    converter: (store) {
+                        return () => store.dispatch(Actions.Increment);
+                    },
+                    builder: (context, callback) {
+                        return new FloatingActionButton(
+                            onPressed: callback,
+                            tooltip: 'Increment',
+                            child: new Icon(Icons.add),
+                        );
+                    },
+                ),
+            ]
+        ),
+    );
+  }
+```
+
+>
