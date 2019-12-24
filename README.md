@@ -38,10 +38,9 @@ Redux 是一个数据流管理框架，用与控制整个应用的数据流向�
 
 #### reducer
 
-``
 `reducer` 接收旧的`state`和指定标识符的`action`为参数， 返回新的`state`;`(oldState, action) => newState`;这也是改变`state`唯一的方式；
 
-> 这里需要注意引用指针问题，一般`state`为引用类型数据，改变起某些属性值并不能生成新的`state`, 一般我们会对`state`进行克隆。
+> 这里需要注意引用指针问题，一般`state`为引用类型数据，改变某些属性值并不能生成新的`state`, 一般我们会对`state`进行克隆。
 
 ```dart
 int counterReducer(int state, dynamic action) {
@@ -53,5 +52,49 @@ int counterReducer(int state, dynamic action) {
 }
 ```
 
-至此，原汁原味的`redux`改变 state 的流程就走完了，用过成熟第三`redux`衍生库(`fish-redux`、`redux-dva`、`redux-saga`)的读者肯定会发现其中少了一个环节`effect`,
-`effect`其实就是`redux`里面一个用于处理异步的中间价**MiddleWare**。
+至此，原汁原味的 redux 改变 `state` 的流程就走完了，用过成熟第三 redux 衍生库(fish-redux、redux-dva、redux-saga)的读者肯定会发现其中少了一个环节`effect`,
+`effect`其实就是`redux`里面一个用于处理异步的中间件**MiddleWare**。下面我们仔细看看 reduex **MiddleWare**
+
+#### MiddleWare
+
+redux 中间件见解了 Koa 框架洋葱模型中间件，在`dispatch(action)`之后，调用 reducer 之前，依次遍历调用 MiddleWares 数组(`next(action)`)，中途可以执行任何异步操作(记录日志，API 请求等)，
+最后再进入 reducer 改变状态；下面是中间件调用过程的雏形(js)：
+
+```js
+function applyMiddleware(store, middlewares) {
+    middlewares = middlewares.slice();
+    middlewares.reverse();
+
+    let dispatch = store.dispatch;
+    middlewares.forEach(middleware => (dispatch = middleware(store)(dispatch)));
+
+    return Object.assign({}, store, { dispatch });
+}
+```
+
+因为原生 redux 统一的中间件调用规则，那么任何 redux 中间件都将是一个接收 3 个参数的柯里化函数：依次是`store => next => action => {}`,
+那么编写一个简单的处理异步的**MiddleWare**将非常简单：
+
+```js
+function createThunkMiddleware(extraArgument) {
+    return ({ dispatch, getState }) => next => action => {
+        if (typeof action === "function") {
+            return action(dispatch, getState, extraArgument);
+        }
+
+        return next(action);
+    };
+}
+```
+
+这也是赫赫有名的`redux-thunk`的源码，十几行代码尽然有一万多 Star，惊呆了！然后我们再看`effect`就非常简单了：
+
+#### effect
+
+effect 是一堆异步操作的`Map`集合，也就是形成了`action.type`与异步操作的映射， 将`dispatch`过来的`action`通过 action 的标识符与固定的异步函数相关联：
+
+`dispatch(action(type: 'A'))`------> `effectMiddleWare({A: (){ 执行异步函数……}})` -----> `reducer()` ------> `newState`
+
+redux 整体示意流程图如下：
+
+!()[https://www.didierboelens.com/images/models_redux_animation.gif]
