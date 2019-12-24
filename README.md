@@ -1,12 +1,57 @@
-# BLoC - ScopedModel - Redux - fishRedux - fishReduxAdaptor - provider - Comparison
+# BLoC - ScopedModel - Redux - fishRedux - provider - Comparison
 
-> 深入对比 flutter 数据流解决方案：包括：
+## 前言
 
--   `BLoC` 流式响应式编程数据流
--   `ScopedModel` 典型的基于`InheritedWidget`将`model`扩展其子代
--   `Redux` 经典的`redux`解决方案
--   `fishRedux` 阿里咸鱼技术数据流框架
--   `fishReduxAdaptor` 引入`Adaptor` 的 `fish-redux` 解决方案
+目前 flutter 生态比较流行的数据流解决方案有：
+
+-   `BLoC`： 流式响应式编程数据流
+-   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展其子代
+-   `Redux`：也就是 flutter-redux，经典的 redux 解决方案
 -   `provider` 谷歌推荐的数据流方案
+-   `fish-redux`：阿里咸鱼技术数据流框架
 
-<!-- Sample application to illustrate the article available on [didierboelens.com](https://www.didierboelens.com/2019/04/bloc---scopedmodel---redux---comparison/). -->
+面对这么多的数据流解决方案，我们应该怎么用，什么时候该用，什么时候不该用，用哪一种……，每一种数据流本身都有其独特的设计思想，用法也比较抽象，网上对每种方案都是各执一词。不过没有数据的对比都是强词夺理瞎扯淡，这次我们首先对每种方案做一个基本的用法介绍(第一部分)，然后通过一个具体的 case(第二部分) ， 详细对比每种方案的优缺点，熟悉每种方案的基本用法。开始吧！
+
+## 第一部分：它们都是些什么？
+
+### Redux
+
+Redux 是一个数据流管理框架，用与控制整个应用的数据流向与状态改变，其设计的主要原则有：
+
+-   单一数据源，一个应用只存在一个用于储存数据的`store`，这点也是 redux 与其他方案的一个很大的区别；
+-   state 的状态是只读的，改变 state 的唯一方式就是 `dispatch(action)`
+-   `dispatch(action)` 首先会分配到**MiddleWare**里面，做一些其他操作，**MiddleWare**之后进入 `reducer` 进行改变`state`
+-   整个改变 state 的过程都是纯函数，同一输入同一输出
+
+> 下面简单介绍`redux`各个知识点，详细参见官方文档: (redux)[https://www.redux.org.cn/]
+
+#### action
+
+`action`是一个描述如何改变 state 的载体，由标识符与具体数据组成，比如点击一个按钮，让一个初始值为 0 的状态改变为 1，那么对应的`action`应该是：
+
+```dart
+{
+  type: ADD_TODO,
+  payload: 1
+}
+```
+
+#### reducer
+
+``
+`reducer` 接收旧的`state`和指定标识符的`action`为参数， 返回新的`state`;`(oldState, action) => newState`;这也是改变`state`唯一的方式；
+
+> 这里需要注意引用指针问题，一般`state`为引用类型数据，改变起某些属性值并不能生成新的`state`, 一般我们会对`state`进行克隆。
+
+```dart
+int counterReducer(int state, dynamic action) {
+  if (action == ADD_TODO) {
+    return state + 1;
+  }
+
+  return state;
+}
+```
+
+至此，原汁原味的`redux`改变 state 的流程就走完了，用过成熟第三`redux`衍生库(`fish-redux`、`redux-dva`、`redux-saga`)的读者肯定会发现其中少了一个环节`effect`,
+`effect`其实就是`redux`里面一个用于处理异步的中间价**MiddleWare**。
