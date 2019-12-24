@@ -160,4 +160,6 @@ Widget build(BuildContext context) {
   }
 ```
 
->
+> 你看吧，原滋原味的 redux;
+
+### fish-redux
