@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:redux/redux.dart';
 import 'package:redux_scopedmodel_bloc/case2/redux/actions.dart';
 import 'package:redux_scopedmodel_bloc/case2/redux/application_state.dart';
 import 'package:redux_scopedmodel_bloc/case2/redux/view_models.dart';
+import 'package:redux_scopedmodel_bloc/common/SparkLine.dart';
 
 class ReduxWidget extends StatelessWidget {
   ReduxWidget({

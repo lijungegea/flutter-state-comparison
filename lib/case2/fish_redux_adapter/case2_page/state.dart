@@ -17,7 +17,6 @@ class Case2State extends MutableSource implements Cloneable<Case2State> {
   String getItemType(int index) => 'item';
 
   @override
-  // TODO: implement itemCount
   int get itemCount => widgets?.length ?? 0;
 
   @override

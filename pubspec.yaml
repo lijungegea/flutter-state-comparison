@@ -4,7 +4,7 @@ description: Companion Source Code
 version: 1.0.0+1
 
 environment:
-    sdk: ">=2.1.0 <3.0.0"
+    sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
     flutter:
@@ -17,6 +17,7 @@ dependencies:
     cupertino_icons: ^0.1.2
     fish_redux: ^0.3.1
     provider: ^3.2.0
+    flutter_hooks: ^0.7.0
 
 dev_dependencies:
     flutter_test:

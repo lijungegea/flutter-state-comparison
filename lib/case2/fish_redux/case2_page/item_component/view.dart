@@ -4,7 +4,6 @@ import 'package:flutter_sparkline/flutter_sparkline.dart';
 
 import '../action.dart';
 import '../state.dart';
-import 'action.dart';
 import 'state.dart';
 
 Widget buildView(ItemState state, Dispatch dispatch, ViewService viewService) {
@@ -28,7 +27,6 @@ class _ItemFulState extends State<ItemFul> {
   void didUpdateWidget(ItemFul oldWidget) {
     print(
         '-------------------------------------> item didUpdateWidget ${widget.index}');
-    // TODO: implement didUpdateWidget
     super.didUpdateWidget(oldWidget);
   }
 

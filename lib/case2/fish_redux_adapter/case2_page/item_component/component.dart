@@ -1,10 +1,6 @@
-import 'dart:async';
-
 import 'package:fish_redux/fish_redux.dart';
 import 'package:flutter/material.dart';
-import 'package:redux_scopedmodel_bloc/case2/common/async_data_fetcher.dart';
 
-import 'action.dart';
 import 'effect.dart';
 import 'reducer.dart';
 import 'state.dart';
@@ -16,7 +12,17 @@ class ItemComponent extends Component<ItemState> {
             effect: buildEffect(),
             reducer: buildReducer(),
             view: buildView,
+            shouldUpdate: (ItemState old, ItemState now) {
+              return old != now;
+            },
+            filter: (ItemState state, action) {
+              return true;
+            },
             wrapper: (Widget w) {
-              return w;
+              return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: w,
+                color: Colors.red,
+              );
             });
 }

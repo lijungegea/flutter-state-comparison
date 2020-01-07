@@ -1,8 +1,6 @@
 import 'package:fish_redux/fish_redux.dart';
 import 'package:flutter/material.dart';
 
-import 'action.dart';
-import 'item_component/view.dart';
 import 'list_adapter/action.dart';
 import 'state.dart';
 
@@ -10,7 +8,17 @@ Widget buildView(Case2State state, Dispatch dispatch, ViewService viewService) {
   final ListAdapter adapter = viewService.buildAdapter();
   return Scaffold(
     appBar: AppBar(
-      title: Text('REDUX list'),
+      title: Text('fish-adaptor list'),
+      leading: RaisedButton(
+        child: Text(state.widgets
+            .where((f) => f.isTimerOn == true)
+            .toList()
+            .length
+            .toString()),
+        onPressed: () {
+          dispatch(ListActionCreator.addItemAction(state.widgets.length));
+        },
+      ),
       actions: <Widget>[
         RaisedButton(
           child: Text('Add...'),
@@ -28,5 +36,4 @@ Widget buildView(Case2State state, Dispatch dispatch, ViewService viewService) {
           itemBuilder: adapter.itemBuilder),
     ),
   );
-  ;
 }

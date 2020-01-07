@@ -5,14 +5,14 @@
 目前 flutter 生态比较流行的数据流解决方案有：
 
 -   `BLoC`： 流式响应式编程数据流
--   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展其子代
+-   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展至其子代
 -   `Redux`：也就是 flutter-redux，经典的 redux 解决方案
--   `provider` 谷歌推荐的数据流方案
--   `fish-redux`：阿里咸鱼技术数据流框架
+-   `Provider` 谷歌推荐的数据流方案
+-   `Fish-redux`：阿里咸鱼技术数据流框架
 
-面对这么多的数据流解决方案，我们应该怎么用，什么时候该用，什么时候不该用，用哪一种……，每一种数据流本身都有其独特的设计思想，用法也比较抽象，网上对每种方案都是各执一词。不过没有数据的对比都是强词夺理瞎扯淡，这次我们首先对每种方案做一个基本的用法介绍(第一部分)，然后通过一个具体的 case(第二部分) ， 详细对比每种方案的优缺点，熟悉每种方案的基本用法。开始吧！
+面对这么多的数据流解决方案，我们应该怎么用，什么时候该用，什么时候不该用，用哪一种……，每一种数据流本身都有其独特的设计思想，用法也比较抽象，网上对每种方案都是各执一词。不过没有数据的对比都是强词夺理瞎扯淡，这次我们首先对每种方案做一个基本的用法介绍，然后通过一个具体的 case 例子 ， 详细对比每种方案的优缺点，熟悉每种方案的基本用法。开始吧！
 
-## 第一部分：它们都是些什么？
+## 关于 case
 
 ### Redux
 
@@ -55,7 +55,7 @@ int counterReducer(int state, dynamic action) {
 ```
 
 至此，原汁原味的 redux 改变 `state` 的流程就走完了，用过成熟第三 redux 衍生库(fish-redux、redux-dva、redux-saga)的读者肯定会发现其中少了一个环节`effect`,
-`effect`其实就是`redux`里面一个用于处理异步的中间件**MiddleWare**。下面我们仔细看看 reduex **MiddleWare**
+`effect`其实就是`redux`里面一个用于处理异步的中间件**MiddleWare**。下面我们仔细看看 redux **MiddleWare**
 
 #### MiddleWare
 
@@ -74,7 +74,7 @@ function applyMiddleware(store, middlewares) {
 }
 ```
 
-因为原生 redux 统一的中间件调用规则，那么任何 redux 中间件都将是一个接收 3 个参数的柯里化函数：依次是`store => next => action => {}`,
+因为原生 redux 统一的中间件调用规则，那么任何 redux 中间件都将是一个接收 3 个参数的柯里化函数：依次是`store => next => action => {}` (fish-redux/case2/page),
 那么编写一个简单的处理异步的**MiddleWare**将非常简单：
 
 ```js
@@ -104,64 +104,321 @@ effect 的始祖正是强大的 redux 中间件`redux-saga`, 它是一堆异步�
 
 ### flutter-redux
 
-flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux，当然前面提到的几点性能优化的地方，包括中间件的编写，也可以由开发人员自由发挥。我们这里简单实现一个: 0 to 1;
+flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux，当然前面提到的几点性能优化的地方，包括中间件的编写，也可以由开发人员自由发挥。
+由于 redux 三大原则之一：单一数据源，整个 app 只有一个 store，默认情况下，改变某一个子组件状态，就要重新生成一个新的 store 才会刷新页面，当然，这也会造成整个页面的重新渲染。为了解决这个必须解决的矛盾，就要对 store 进行细颗粒度的分割，某以页面或组件只依赖某一个子 state;
+开始介绍其简单的默认用法：
 
-#### action
+#### 初始化 store
 
 ```dart
-    enum Actions { increment }
-    class Case2ActionCreator {
-        static Action add(int value) {
-            return Action(Actions.increment, payload: value);
-        }
+applicationStore = Store<ApplicationState>(
+    appReducer, // 这里或许是个组合后的reducer
+    initialState: ApplicationState.initial(),
+    middleware: <Middleware<ApplicationState>>[
+        tickerMiddleware,
+    ],
+);
+```
+
+#### 提供者 StoreProvider
+
+> **StoreProvider** 做为列表唯一数据源 `store`提供者，只要`store`改变，后续依赖子组件都会重新构建
+
+```dart
+     Widget build(BuildContext context) {
+        return StoreProvider<ApplicationState>(
+        store: applicationStore,
+        child: MaterialApp(
+                home: ReduxPage(),
+            ),
+        );
     }
 ```
 
-#### reducer
+#### 接收者 StoreConnector
+
+> **StoreConnector** 链接`store`，取出所要用到的数据
 
 ```dart
-    int counterReducer(int state, dynamic action) {
-        if (action == Actions.increment) {
-            return action.payload;
-        }
-        return state;
-    }
+   StoreConnector<ApplicationState,ReduxWidgetButtonViewModel>(
+        converter: (Store<ApplicationState> store) {
+    return ReduxWidgetButtonViewModel(
+        isActive: store.state.panelsList[panelIndex].isTimerOn
+    }, builder: (BuildContext context,
+            ReduxWidgetButtonViewModel model) {
+    return RaisedButton(
+        child: Text(model.isActive ? 'Stop' : 'Start'));
+    }),
 ```
 
-#### view 里面使用 state
-
-```dart
-Widget build(BuildContext context) {
-    return new StoreProvider<int>(
-        store: store,
-        child: new Column(
-            children:[
-                new StoreConnector<int, String>(
-                    converter: (store) => store.state.toString(),
-                    builder: (context, count) {
-                        return new Text(
-                            count,
-                        );
-                    },
-                );
-                new StoreConnector<int, VoidCallback>(
-                    converter: (store) {
-                        return () => store.dispatch(Actions.Increment);
-                    },
-                    builder: (context, callback) {
-                        return new FloatingActionButton(
-                            onPressed: callback,
-                            tooltip: 'Increment',
-                            child: new Icon(Icons.add),
-                        );
-                    },
-                ),
-            ]
-        ),
-    );
-  }
-```
-
-> 你看吧，原滋原味的 redux;
+> 如你所见，原滋原味的 redux;
 
 ### fish-redux
+
+如果说 flutter-redux 只是一个解决数据流的第三方依赖库的话，fish-redux 才是真正意义上的应用级数据流框架，它直接改变了应用的编码架构，范式结构。并且在上面提到的各种性能优化 fish-redux 也几乎做到了最优(state 数据层计算方面), 在便于组件拆分和长列表渲染方面也做了相关优化(dependencies)。fish-redux 是阿里闲鱼解决方案，官方文档依旧是很难不懂，对于初学者学习有一定难度，不过 fish-redux 并没有破坏原有 redux 结构，整体编码思想还是跟 redux 保持一直。只是在其基础上结合 flutter 生命周期特性等做了扩展和优化，下面简单介绍其基础用法和相关特性：
+
+> vscode 开发者可以下载插件**fish-redux-template**，目录点击右键直接创建对应模版，非常方便。
+> 最新版 fish-redux 是 v0.3.1,新旧版本用法差异比较大，我们以最新版为例！
+
+简单介绍展示业务层代码（接入 app 的入口代码参照(copy)官方示例）。
+
+#### page.dart
+
+page 是页面级别的根文件, 继承 fish 父类 Page, 直接调用父类构造函数，组合了 redux 整个流程需要的元素：
+
+-   `initState` 对应 redux 初始化 state
+-   `effect` 对应 redux 异步中间件，调用在`dispatch(action)`之后`reducer`之前用于处理异步操作流程
+-   `reducer` 对应 redux reducer 流程
+-   `view` 对应页面 UI 展示的 Widget
+-   `dependencies` 主要发挥了两个方面的作用：
+
+    1. `slots`: 组件拆分，比如有各一个 common 级组件需要抽离出来,当然这里的组件也必须是 fish-components, 其中除了 common 组件以外还有一个：
+       用于在父组件将对应 state 传给 common 组件的连接器**Connector**，Connector 里面起了一个很重要的优化作用(mixin reselect)，用于缓存不可变数据，也就是对应 redux 里面的 reselect；
+    2. `adapter`: 专注与处理长列表性能优化, 其中优化的功能点以及所起到的作用有：
+
+        - 拆分 store, 使每个 item 只依赖与自己的 state(
+            ```dart
+            /// 获取列表item数据
+            @override
+            Object getItemData(int index) => widgets[index];
+            ```
+        - 优化 big-cell 性能
+
+        > 针对这两点那么就大致可以知道什么时候该用`adapter`： 1. 列表 item 需要保持私有 state 状态， 2. 列表中存在 big-cell;
+
+-   `middleware`: 对应 redux 中间件，其用法和原生 redux 如出一辙
+-   `shouldUpdate`: 更细粒度的控制某个 item 是否更新
+-   `wrapper`: item 的高阶组件函数，非常方便！
+    ……
+    还有很多，这里就不一一列出了，可以说你想得到的和你没想到的，fish 帮我们做了更多。
+
+```dart
+class Case2Page extends Page<Case2State, Map<String, dynamic>> {
+    Case2Page()
+        : super(
+            initState: initState,
+            effect: buildEffect(),
+            reducer: buildReducer(),
+            view: buildView,
+            dependencies: Dependencies<Case2State>(
+                adapter: NoneConn<Case2State>() + Case2ListAdapter(),
+                //slots: <String, Dependent<PageState>>{
+                    //'report': ReportConnector() + ReportComponent()
+                //}),
+            ),
+            middleware: <Middleware<Case2State>>[],
+            shouldUpdate: (ItemState old, ItemState now) {
+              return old != now;
+            },
+            filter: (ItemState state, action) {
+              return action.type == 'some action';
+            },
+            wrapper: (Widget w) {
+              return Container(
+                margin: EdgeInsets.only(top: 20),
+                child: w,
+                color: Colors.red,
+              );
+            });
+        );
+}
+```
+
+#### action.dart reducer.dart 没任何改变，不在赘述
+
+#### effect.dart
+
+对应 page 里面的 effect, 这里除了拦截接收到自定义 action 做一些异步操作以外，还拦截了 flutter 整个生命周期钩子，相当于生命周期钩子函数，实际业务中用起来非常方便,
+值得注意的是，除了 flutter statefulWidget 生命周期以外，fish 还额外注入了三个常用的额外生命周期：
+
+-   `Lifecycle.appear`: 列表组件在视图中显示时的触发
+-   `Lifecycle.disappear`: 列表组件在视图中隐藏时的触发
+-   `Lifecycle.didChangeAppLifecycleState`: 继承 AppLifecycleState， 在切换前台后台时触发
+
+```dart
+Effect<ItemState> buildEffect() {
+    return combineEffects(<Object, Effect<ItemState>>{
+        /// initState 生命周期对应触发 _init函数
+        Lifecycle.initState: _init
+        /// 接收到 ItemAction.startStopPanelAction 类型action, 触发异步操作函数 _startStopPanelAction
+        ItemAction.startStopPanelAction: _startStopPanelAction
+    });
+}
+```
+
+#### state.dart
+
+state 有两种，一种是非关联 adaptor 的:
+
+```dart
+class ItemState implements Cloneable<ItemState> {
+    int index;
+
+    /// 实现了 state 的 clone
+    @override
+    ItemState clone() {
+        return ItemState()
+        ..index = index
+    }
+    @override
+    String toString() {
+        return 'ItemState{index: $index}';
+    }
+}
+//ItemState initState(Map<String, dynamic> args) {
+//  return ItemState()..index = [];
+//}
+```
+
+一种是关联 adaptor(要将数据传递给 adaptor)：
+
+```dart
+class Case2State extends MutableSource implements Cloneable<Case2State> {
+    List<ItemState> widgets;
+
+    @override
+    Case2State clone() {
+        return Case2State()..widgets = widgets;
+    }
+
+    /// 获取列表item数据
+    @override
+    Object getItemData(int index) => widgets[index];
+
+    /// item链接adaptor池的唯一字符
+    @override
+    String getItemType(int index) => 'item';
+
+    /// 列表长度
+    @override
+    int get itemCount => widgets?.length ?? 0;
+
+    /// 设置列表item数据
+    @override
+    void setItemData(int index, Object data) => widgets[index] = data;
+}
+
+Case2State initState(Map<String, dynamic> args) {
+  return Case2State()..widgets = [];
+}
+```
+
+### BLoC
+
+BLoC(Business Logic Component) 是一种编程模式，由 google 在 2018 年 1 月首次提出，它甚至不需要任何外部库或程序包，因为它仅依赖于 Streams 的使用。但是，为了获得更友好的功能，通常将其与 RxDart 软件包结合使用。
+
+flutter 里面的 BLoC 的实现依赖于 dart API **Stream**
+
+#### 关于 stream
+
+stream 可以形象的理解为：考虑一个具有 2 个末端的管道，只有一个管道允许在其中插入一些东西。当您将某些东西插入管道时，它会在管道内流动并从另一端流出。
+
+在 flutter 里,
+
+-   这个管道就是流（BLoC）
+-   控制这根管道的流入流出，我们常常用 StreamController
+-   为了将某些内容插入**Stream**中，**StreamController**公开了可通过接收器属性访问的 api`Sink`
+-   为了将某些内容流出**Stream**中，**StreamController**公开了可通过接收器属性访问的 api`Stream`
+
+![BLoC 分离UI与逻辑：](https://www.didierboelens.com/images/streams_bloc.png)
+
+可以看出 Widget 将事件发送至 BLoC，BLoC 以 stream 的形式通知 Widget，整个 BLoC 业务逻辑保持绝对独立，与 Widget 没任何关联。得益于 BLoC 与 Ui 的完全分离，
+实际上，BLoC 模式最初是为了允许重用完全相同的代码而与平台无关的：Web 应用程序，移动应用程序，后端。
+
+一个简单的 Increment 功能的 BLoC 例子：
+
+定义加一功能的 Bloc 模型
+
+```dart
+class IncrementBloc implements BlocBase {
+  int _counter;
+
+  StreamController<int> _counterController = StreamController<int>();
+  StreamSink<int> get _inAdd => _counterController.sink;
+  Stream<int> get outCounter => _counterController.stream;
+
+
+  //NOTE: 动作action Controller
+  StreamController _actionController = StreamController();
+  StreamSink get incrementCounter => _actionController.sink;
+
+  IncrementBloc() {
+    _counter = 0;
+    _actionController.stream.listen(_handleLogic);
+  }
+
+  void dispose() {
+    _actionController.close();
+    _counterController.close();
+  }
+
+  void _handleLogic(data) {
+    _counter = _counter + 1;
+    _inAdd.add(_counter);
+  }
+}
+```
+
+然后将 BLoC 用于任何页面：
+
+```dart
+class BlocAddOneApplication extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new MaterialApp(
+      title: 'Streams Demo',
+      theme: new ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: BlocProvider<IncrementBloc>( // common > bloc_provider
+        bloc: IncrementBloc(),
+        child: CounterPage(),
+      ),
+    );
+  }
+}
+```
+
+在业务页面只需发出对应的动作即可，具体实现的业务逻辑与页面毫无关系，UI 与业务逻辑高度分离；其来的优点显而易见：
+
+-   偏于逻辑测试，这里只测试 BLoC 逻辑即可，与页面无关；
+-   高度独立的逻辑独立，不与任何 UI 耦合，带来更好的逻辑扩展
+-   可以将 BLoC 用于任何相同功能逻辑的页面，比如常见的下拉刷新，上拉下载业务
+
+```dart
+class CounterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final IncrementBloc bloc = BlocProvider.of<IncrementBloc>(context);
+    return Scaffold(
+      appBar: AppBar(
+          title: Text('BLoC version of the Counter'),
+          brightness: Brightness.dark),
+      body: Center(
+        child: StreamBuilder<int>(
+            stream: bloc.outCounter,
+            initialData: 0,
+            builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+              return Text('${snapshot.data} times');
+            }),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          bloc.incrementCounter.add(null);  //HACK: 发出动作，我要加一！！！至于如何加一以及加一过程中经历了什么，我毫不关心
+        },
+      ),
+    );
+  }
+}
+```
+
+![BLoC 整体示意流程图如下：](https://www.didierboelens.com/images/models_bloc_animation.gif)
+
+### provider 与 scoped_model
+
+#### 关于 inheritedWidget
+
+-   `inheritedWidget` 可以让子 widget 获取它本身的 state 数据
+-   子 widget 通过调用 `context` api （findAncestorStateOfType）获取 inheritedWidget state 的最新引用；
+-   依赖`inheritedWidget` state 与子 widget 将在每次 state 数据变化时，触发`updateShouldNotify`

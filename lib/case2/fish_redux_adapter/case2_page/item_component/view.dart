@@ -1,11 +1,7 @@
-import 'dart:async';
-
 import 'package:fish_redux/fish_redux.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
-import 'package:redux_scopedmodel_bloc/case2/common/async_data_fetcher.dart';
 
-import '../action.dart';
 import 'action.dart';
 import 'state.dart';
 
@@ -27,7 +23,6 @@ class _ItemFulState extends State<ItemFul> {
   // @override
   // void didUpdateWidget(ItemFul oldWidget) {
   //   print('-------------------------------------> item didUpdateWidget');
-  //   // TODO: implement didUpdateWidget
   //   super.didUpdateWidget(oldWidget);
   // }
 

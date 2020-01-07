@@ -8,7 +8,7 @@ import 'state.dart';
 Widget buildView(Case2State state, Dispatch dispatch, ViewService viewService) {
   return Scaffold(
     appBar: AppBar(
-      title: Text('REDUX list'),
+      title: Text('fish-redux list'),
       actions: <Widget>[
         RaisedButton(
           child: Text('Add...'),
@@ -33,5 +33,4 @@ Widget buildView(Case2State state, Dispatch dispatch, ViewService viewService) {
       ),
     ),
   );
-  ;
 }

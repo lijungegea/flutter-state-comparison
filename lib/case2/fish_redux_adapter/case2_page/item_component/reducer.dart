@@ -13,6 +13,7 @@ Reducer<ItemState> buildReducer() {
 }
 
 ItemState _startOrStopAction(ItemState state, Action action) {
+  print('---------------------------> reducer action');
   final int index = action.payload['index'];
   if (state.index == index) {
     return state.clone()..isTimerOn = action.payload['isStart'];
