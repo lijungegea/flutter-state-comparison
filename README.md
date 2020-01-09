@@ -529,7 +529,7 @@ class InheritedProvider<T> extends InheritedWidget {
 }
 ```
 
-app 顶层提供数据：
+app 顶层提供数据,这里以`AnimatedBuilder`重新渲染方式：
 
 ```dart
 class MyAnimationProviderApp extends StatelessWidget {
@@ -557,7 +557,7 @@ class MyAnimationProviderApp extends StatelessWidget {
 }
 ```
 
-任何业务层的使用，这里以`AnimatedBuilder`重新渲染方式：
+任何业务层的使用 ：
 
 ```dart
 class _ProviderRouteState extends State<MyProviderRoute> {
