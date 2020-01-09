@@ -2,17 +2,44 @@
 
 ## 前言
 
+flutter 使用了与很多前端开发框架相同的开发思想，都是声明式编程框架：
+
+![BLoC 整体示意流程图如下：](https://flutter.cn/assets/development/data-and-backend/state-mgmt/ui-equals-function-of-state-54b01b000694caf9da439bd3f774ef22b00e92a62d3b2ade4f2e95c8555b8ca7.png)
+
+其中应用当前状态与应用的当前 UI 展示一一对应；状态改变时将会导致页面 UI 的重绘；那么管理状态就成了 flutter app 最为重要最为频繁的操作之一，首先看看 flutter 自身的状态管理：
+
+#### 内部状态
+
+| state 来源      | 改变方式      |
+| --------------- | ------------- |
+| StatefulWidget  | setState()    |
+| StatefulBuilder | subSetState() |
+
+#### 外部环境状态
+
+外部环境状态指的是当前状态是通过外部传入的
+
+| state 来源    | 改变方式                                                   |
+| ------------- | ---------------------------------------------------------- |
+| inheritWidget | `AnimationBuilder` 或者 setState                           |
+| Stream        | Stream 改变时，依赖于 Stream 的 StreamBuilder 将会重新构建 |
+
+除了单个 widget 的状态管理以外，还涉及到不同的 widget 之间状态的共享，状态的传递，当一个应用状态越来越多的时候，状态的耦合度会越来越大，相互交错，难以维护，为了解决这个问题，数据流解决方案应运而生。
+
 目前 flutter 生态比较流行的数据流解决方案有：
 
 -   `BLoC`： 流式响应式编程数据流
--   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展至其子代
+-   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展共享至其子代
 -   `Redux`：也就是 flutter-redux，经典的 redux 解决方案
 -   `Provider` 谷歌推荐的数据流方案
 -   `Fish-redux`：阿里咸鱼技术数据流框架
 
-面对这么多的数据流解决方案，我们应该怎么用，什么时候该用，什么时候不该用，用哪一种……，每一种数据流本身都有其独特的设计思想，用法也比较抽象，网上对每种方案都是各执一词。不过没有数据的对比都是强词夺理瞎扯淡，这次我们首先对每种方案做一个基本的用法介绍，然后通过一个具体的 case 例子 ， 详细对比每种方案的优缺点，熟悉每种方案的基本用法。开始吧！
+###本文目的：
 
-## 关于 case
+-   让读者熟悉各个数据流方案的基本设计原理，会使用没种方案的基本用法；
+-   通过一个详细的例子，能让读者对各个方案的优缺点有一个初步的认识，在实际业务种知道**用那种**，以及**怎么用**
+
+## 用法及原理介绍
 
 ### Redux
 
@@ -107,18 +134,6 @@ effect 的始祖正是强大的 redux 中间件`redux-saga`, 它是一堆异步�
 flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux，当然前面提到的几点性能优化的地方，包括中间件的编写，也可以由开发人员自由发挥。
 由于 redux 三大原则之一：单一数据源，整个 app 只有一个 store，默认情况下，改变某一个子组件状态，就要重新生成一个新的 store 才会刷新页面，当然，这也会造成整个页面的重新渲染。为了解决这个必须解决的矛盾，就要对 store 进行细颗粒度的分割，某以页面或组件只依赖某一个子 state;
 开始介绍其简单的默认用法：
-
-#### 初始化 store
-
-```dart
-applicationStore = Store<ApplicationState>(
-    appReducer, // 这里或许是个组合后的reducer
-    initialState: ApplicationState.initial(),
-    middleware: <Middleware<ApplicationState>>[
-        tickerMiddleware,
-    ],
-);
-```
 
 #### 提供者 StoreProvider
 
@@ -381,7 +396,7 @@ class BlocAddOneApplication extends StatelessWidget {
 
 在业务页面只需发出对应的动作即可，具体实现的业务逻辑与页面毫无关系，UI 与业务逻辑高度分离；其来的优点显而易见：
 
--   偏于逻辑测试，这里只测试 BLoC 逻辑即可，与页面无关；
+-   便于逻辑测试，这里只测试 BLoC 逻辑即可，与页面无关；
 -   高度独立的逻辑独立，不与任何 UI 耦合，带来更好的逻辑扩展
 -   可以将 BLoC 用于任何相同功能逻辑的页面，比如常见的下拉刷新，上拉下载业务
 
@@ -415,10 +430,161 @@ class CounterPage extends StatelessWidget {
 
 ![BLoC 整体示意流程图如下：](https://www.didierboelens.com/images/models_bloc_animation.gif)
 
-### provider 与 scoped_model
+### Provider 与 Scoped_model
 
-#### 关于 inheritedWidget
+之所以把这两个放在一起介绍，是因为实现是想基本一致，只是提供的 api 不同，他们的状态的共享都的实现都是分为两步完成：
 
--   `inheritedWidget` 可以让子 widget 获取它本身的 state 数据
--   子 widget 通过调用 `context` api （findAncestorStateOfType）获取 inheritedWidget state 的最新引用；
--   依赖`inheritedWidget` state 与子 widget 将在每次 state 数据变化时，触发`updateShouldNotify`
+#### 1. 一个提供恒定共享数据的 inheritedWidget
+
+-   子 widget 通过调用 `context` api (`dependOnInheritedWidgetOfExactType`) 获取 inheritedWidget 的最新 state；
+-   依赖`inheritedWidget` state 的子 widget 将在每次 state 数据变化时，触发`updateShouldNotify`，从而通知子组件是否更新数据，但不会重新构建；
+
+```dart
+class ShareDataWidget extends InheritedWidget {
+  ShareDataWidget({@required this.data, Widget child}) : super(child: child);
+
+  // NODE: data发生改变时，将重新构建上下文，所依赖的子widget会接收到最新的值；
+  final int data;
+
+  static ShareDataWidget of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType();
+  }
+
+  @override
+  bool updateShouldNotify(ShareDataWidget old) {
+    return old.data != data;
+  }
+}
+```
+
+#### 通知 Widget 刷新
+
+他们都是通过 flutter 自身提供的`Listenable`通知刷新，其整个通知重新构建的过程为：
+
+-   继承至`Listenable`的 model 数据改变时，自动将 update 函数（注：能引起页面重构的函数）成员注入到 listener list;
+-   紧接着调用 notifyListeners 通知刷新，也就是立即触发 update 函数，使页面重新渲染
+
+当然除了自己构建 update 函数,也可以直接使用`AnimationBuilder`（其实其参数`animation`也是个`Listenable`），这也是除了 setState，能让页面重新渲染的另一种方式。
+
+```dart
+// NOTE: 本质上 ChangeNotifier 只做了一件事：model改变时添加listener, 然后model调用notifyListeners触发更新函数update，也就是setState
+class _ChangeNotifierProviderState<T extends ChangeNotifier>
+    extends State<ChangeNotifierProvider<T>> {
+  void update() {
+    //如果数据发生变化（model类调用了notifyListeners），重新构建InheritedProvider
+    setState(() => {});
+  }
+
+  @override
+  void didUpdateWidget(ChangeNotifierProvider<T> oldWidget) {
+    //当Provider更新时，如果新旧数据不"=="，则解绑旧数据监听，同时添加新数据监听
+    if (widget.data != oldWidget.data) {
+      oldWidget.data.removeListener(update);
+      widget.data.addListener(update); // model 调用add方法时添加listener
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  ……
+}
+```
+
+![Provider 与 Scoped_model整体示意流程图如下：](https://www.didierboelens.com/images/models_scopedmodel_animation.gif)
+
+原理过后我们实现一个简单 Increment:
+
+首先是 model 层
+
+```dart
+class IncrementModel extends ChangeNotifier {
+  int counter = 0;
+
+  void add() {
+    counter++;
+    // 通知监听器（订阅者），触发listener，也就是调用[update]函数，更新状态。
+    notifyListeners();
+  }
+}
+```
+
+然后创建共享数据：
+
+```dart
+class InheritedProvider<T> extends InheritedWidget {
+  InheritedProvider({@required this.data, Widget child}) : super(child: child);
+
+  final T data;
+
+  static T of<T>(BuildContext context) {
+    InheritedProvider<T> provider =
+        context.dependOnInheritedWidgetOfExactType();
+    return provider.data;
+  }
+
+  @override
+  bool updateShouldNotify(InheritedProvider<T> old) {
+    //在此简单返回true，则每次更新都会调用依赖其的子孙节点的`didChangeDependencies`。
+    return true;
+  }
+}
+```
+
+app 顶层提供数据：
+
+```dart
+class MyAnimationProviderApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final CartModel _cartModel = CartModel();
+    return new MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('animationBuilder version chart'),
+        ),
+        body: Container(
+            child: AnimatedBuilder(
+          animation: _cartModel,
+          builder: (BuildContext context, Widget child) {
+            return InheritedProvider<CartModel>(
+              data: _cartModel,
+              child: MyProviderRoute(),
+            );
+          },
+        )),
+      ),
+    );
+  }
+}
+```
+
+任何业务层的使用，这里以`AnimatedBuilder`重新渲染方式：
+
+```dart
+class _ProviderRouteState extends State<MyProviderRoute> {
+  @override
+  Widget build(BuildContext context) {
+    var cart = InheritedProvider.of<CartModel>(context);
+    return Center(
+      child: Builder(builder: (context) {
+        return Column(
+          children: <Widget>[
+            Builder(builder: (context) {
+              return Text("Times: ${cart.counter}");
+            }),
+            Builder(builder: (context) {
+              return RaisedButton(
+                child: Text("添加商品"),
+                onPressed: () {
+                  cart.add();
+                },
+              );
+            }),
+          ],
+        );
+      }),
+    );
+  }
+}
+```
+
+## 对比评测

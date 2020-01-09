@@ -35,6 +35,7 @@ class StatsBloc implements BlocBase {
 
   /// Stops the timer
   void stop() {
+    // _timerActivityController.sink.add(false);
     if (_timer != null) {
       _timerActivityController.sink.add(false);
       _timer?.cancel();

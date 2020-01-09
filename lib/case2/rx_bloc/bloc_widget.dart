@@ -44,6 +44,8 @@ class _StatsWidgetState extends State<BlocWidget> {
                     initialData: [],
                     builder: (BuildContext context,
                         AsyncSnapshot<List<double>> snapshot) {
+                      print('----------------------->bloc stas stream build');
+
                       List<double> data =
                           (snapshot.data == null || snapshot.data.length == 0)
                               ? [1.0]
@@ -71,6 +73,7 @@ class _StatsWidgetState extends State<BlocWidget> {
                       builder:
                           (BuildContext context, AsyncSnapshot<bool> snapshot) {
                         bool isActive = snapshot.data;
+                        print('----------------------->bloc btn stream build');
 
                         return RaisedButton(
                           child: Text(isActive ? 'Stop' : 'Start'),

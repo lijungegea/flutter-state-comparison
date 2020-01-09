@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:redux_scopedmodel_bloc/bloc_add_one/app.dart';
 import 'package:redux_scopedmodel_bloc/case2/rx_bloc/bloc_application.dart';
 import 'package:redux_scopedmodel_bloc/case2/redux/redux_application.dart';
 import 'package:redux_scopedmodel_bloc/case2/scoped_model/scoped_model_application.dart';
+import 'package:redux_scopedmodel_bloc/my_animation_builder_provider/app.dart';
+import 'package:redux_scopedmodel_bloc/my_stateful_provider/app.dart';
 
 import 'case2/fish_redux/fish_app.dart';
 import 'case2/fish_redux_adapter/fish_app.dart';
@@ -12,13 +13,15 @@ import 'case2/provider/Provider_app.dart';
 
 void main() {
   // mainCase2RxBloc();
-  //  mainCase2ScopedModel();
+  // mainCase2ScopedModel();
   // mainCase2Redux();
   // mainCase2FishRedux();
   // mainCase2FishAdaptorRedux();
   // mainCase2Provider();
   // mainCase2Hook();
-  mainBlocAddOne();
+  // mainBlocAddOne();
+  // mainMyStateFulProvider();
+  mainMyAnimationProvider();
 }
 
 void mainCase2RxBloc() {
@@ -51,4 +54,12 @@ void mainCase2Hook() {
 
 void mainBlocAddOne() {
   runApp(BlocAddOneApplication());
+}
+
+void mainMyStateFulProvider() {
+  runApp(MyProviderChartApp());
+}
+
+void mainMyAnimationProvider() {
+  runApp(MyAnimationProviderChartApp());
 }

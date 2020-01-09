@@ -7,7 +7,7 @@ const int _kMaxSamples = 15;
 
 class StatsProvider with ChangeNotifier {
   Timer _timer;
-  List<double> stats = <double>[1.0, 1.0];
+  List<double> stats = <double>[1.0];
   bool isTimerOn = false;
 
   ///
