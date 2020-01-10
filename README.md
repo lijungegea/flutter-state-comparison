@@ -34,7 +34,7 @@ flutter 使用了与很多前端开发框架相同的开发思想，都是声明
 -   `Provider` 谷歌推荐的数据流方案
 -   `Fish-redux`：阿里咸鱼技术数据流框架
 
-###本文目的：
+### 本文目的：
 
 -   让读者熟悉各个数据流方案的基本设计原理，会使用没种方案的基本用法；
 -   通过一个详细的例子，能让读者对各个方案的优缺点有一个初步的认识，在实际业务种知道**用那种**，以及**怎么用**
@@ -588,3 +588,20 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 ```
 
 ## 对比评测
+
+### 先看一下 github star，这里也往往代表着生态的活跃度，以及大众的选择
+
+|             | flutter-redux | fish-redux | rxdart(BLoC) | provider | scoped-model |
+| ----------- | ------------- | ---------- | ------------ | -------- | ------------ |
+| github star | 1100+         | 5900+      | 2200+        | 1800+    | 659          |
+
+### 然后我们基于实现相同的一个例子，然后从以下几个维度进行对比评测：
+
+![例子：](https://www.didierboelens.com/images/models_case_2.gif)
+
+#### 文件数量
+
+|          | flutter-redux | fish-redux                                 | rxdart(BLoC) | provider | scoped-model |
+| -------- | ------------- | ------------------------------------------ | ------------ | -------- | ------------ |
+| 文件截图 | 1100+         | ![fish-redux](assets/fish_file_number.png) | 2200+        | 1800+    | 659          |
+| 数量     | 1100+         | 15                                         | 2200+        | 1800+    | 659          |
