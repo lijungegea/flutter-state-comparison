@@ -601,7 +601,7 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 
 #### 文件数量
 
-|          | flutter-redux | fish-redux                                 | rxdart(BLoC) | provider | scoped-model |
-| -------- | ------------- | ------------------------------------------ | ------------ | -------- | ------------ |
-| 文件截图 | 1100+         | ![fish-redux](assets/fish_file_number.png) | 2200+        | 1800+    | 659          |
-| 数量     | 1100+         | 15+                                        | 2200+        | 1800+    | 659          |
+|          | flutter-redux                                    | fish-redux                                 | rxdart(BLoC)                            | provider                                    | scoped-model                              |
+| -------- | ------------------------------------------------ | ------------------------------------------ | --------------------------------------- | ------------------------------------------- | ----------------------------------------- |
+| 文件截图 | ![fish-redux](assets/flutter_redux_file_num.png) | ![fish-redux](assets/fish_file_number.png) | ![fish-redux](assets/bloc_file_num.png) | ![fish-redux](assets/provider_file_num.png) | ![fish-redux](assets/scoped_file_num.png) |
+| 数量     | 7                                                | 15                                         | 4                                       | 5                                           | 4                                         |
