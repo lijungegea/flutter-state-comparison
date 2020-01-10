@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:redux_scopedmodel_bloc/bloc_add_one/app.dart';
+import 'package:redux_scopedmodel_bloc/case2/flutter_redux/redux_application.dart';
 import 'package:redux_scopedmodel_bloc/case2/rx_bloc/bloc_application.dart';
-import 'package:redux_scopedmodel_bloc/case2/redux/redux_application.dart';
 import 'package:redux_scopedmodel_bloc/case2/scoped_model/scoped_model_application.dart';
 import 'package:redux_scopedmodel_bloc/my_animation_builder_provider/app.dart';
 import 'package:redux_scopedmodel_bloc/my_stateful_provider/app.dart';

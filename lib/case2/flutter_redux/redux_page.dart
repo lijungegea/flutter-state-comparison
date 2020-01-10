@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
-import 'package:redux_scopedmodel_bloc/case2/redux/actions.dart';
-import 'package:redux_scopedmodel_bloc/case2/redux/application_state.dart';
-import 'package:redux_scopedmodel_bloc/case2/redux/redux_widget.dart';
+import 'package:redux_scopedmodel_bloc/case2/flutter_redux/actions.dart';
+import 'package:redux_scopedmodel_bloc/case2/flutter_redux/application_state.dart';
+import 'package:redux_scopedmodel_bloc/case2/flutter_redux/redux_widget.dart';
 
 class ReduxPage extends StatefulWidget {
   @override
@@ -37,7 +37,7 @@ class _ReduxPageState extends State<ReduxPage> {
         title: Text('REDUX version'),
         actions: <Widget>[
           StoreConnector<ApplicationState, Store<ApplicationState>>(
-            converter: (Store<ApplicationState> store) => store, 
+            converter: (Store<ApplicationState> store) => store,
             builder: (BuildContext context, Store<ApplicationState> store) {
               return RaisedButton(
                 child: Text('Add...'),
