@@ -58,7 +58,7 @@ Widget case2FishRuduxAdaptorApp() {
 
         /// Store AOP
         middleware: <Middleware<dynamic>>[
-          logMiddleware<dynamic>(tag: page.runtimeType.toString()),
+          // logMiddleware<dynamic>(tag: page.runtimeType.toString()),
         ],
       );
     },

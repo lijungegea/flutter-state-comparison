@@ -589,19 +589,87 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 
 ## 对比评测
 
-### 先看一下 github star，这里也往往代表着生态的活跃度，以及大众的选择
+先看一下 github star，这里也往往代表着生态的活跃度，以及大众的选择
 
 |             | flutter-redux | fish-redux | rxdart(BLoC) | provider | scoped-model |
 | ----------- | ------------- | ---------- | ------------ | -------- | ------------ |
 | github star | 1100+         | 5900+      | 2200+        | 1800+    | 659          |
 
-### 然后我们基于实现相同的一个例子，然后从以下几个维度进行对比评测：
+然后我们基于实现同样功能的一个例子，然后从以下几个维度进行对比评测：
 
 ![例子：](https://www.didierboelens.com/images/models_case_2.gif)
 
-#### 文件数量
+#### 文件数量对比
 
 |          | flutter-redux                                    | fish-redux                                 | rxdart(BLoC)                            | provider                                    | scoped-model                              |
 | -------- | ------------------------------------------------ | ------------------------------------------ | --------------------------------------- | ------------------------------------------- | ----------------------------------------- |
 | 文件截图 | ![fish-redux](assets/flutter_redux_file_num.png) | ![fish-redux](assets/fish_file_number.png) | ![fish-redux](assets/bloc_file_num.png) | ![fish-redux](assets/provider_file_num.png) | ![fish-redux](assets/scoped_file_num.png) |
-| 数量     | 7                                                | 15                                         | 4                                       | 5                                           | 4                                         |
+| 文件数量 | 9                                                | 15                                         | 4                                       | 5                                           | 4                                         |
+
+#### 代码逻辑对比
+
+-   依赖于 redux 特性，flutter-redux 与 fish-redux 都需要执行更多的代码，需要更精细的控制改变 state 的流程，flutter-redux 更是需要新建对应的`StoreConnector`实例来链接业务层
+-   剩余的三个执行代码类似，但因为 provider 和 scoped-model 相比 BLoC 需要手动触发`notifyListeners`告知页面刷新，；其逻辑代码稍微多一些
+-   逻辑最简单的是 BLoC
+
+#### 重绘的粒度对比
+
+-   每次 state 数据的改变只有受影响的部分重绘，其他不受影响，则是最理想的状态，也决定了业务功能的性能问题，我们的例子中维护着一个列表，列表每一个 item 有各自独立的状态，item 里面的控制开关也有自己的独立的状态。我们观察其改变状态时对于其重绘部分的控制，经过实际测试得出以下结果：
+
+注明：例子中的状态改变分为三类:
+
+-   item: 整个 item 重新构建
+-   stasLine: 只有线条绘制部分重新构建
+-   btn: 只有按钮开关重新构建
+
+| 操作                                 | flutter-redux                  | fish-redux                 | rxdart(BLoC)               | provider                   | scoped-model               |
+| ------------------------------------ | ------------------------------ | -------------------------- | -------------------------- | -------------------------- | -------------------------- |
+| 新增一个 item 时                     | 整个列表的数据依赖部分都被刷新 | 只有新增的整个 item 被刷新 | 只有新增的整个 item 被刷新 | 只有新增的整个 item 被刷新 | 只有新增的整个 item 被刷新 |
+| 打开开关，使 item 数据刷新时         | 整个列表的 stasLine 都被刷新   | 对应的整个 item 被刷新     | 只有 stasLine 被刷新       | stasLine btn 被刷新        | stasLine btn 被刷新        |
+| 点击某一个 item 开关，使开关状态改变 | 整个列表的 btn 都被刷新        | 对应的整个 item 被刷新     | 只有 btn 被刷新            | stasLine btn 被刷新        | stasLine btn 被刷新        |
+
+可以看出：
+
+-   由于 redux 单一数据源的原因，flutter-redux 的某一细微的状态改变，则会造成整个页面级的重新绘制，以至于你不得不对 store 进行拆分后再组合
+-   而 fish-redux 以及帮我们做了这一步，可以做到只刷新某一个 item。
+-   provider 和 scoped-model 每个 item 都维护这自己 model，通过提供的连接器 api 可以控制到只刷新某一部分，但要做到更细粒度的划分，也不得不将 UI 层级拆分的更细。
+-   BLoC 这一点做到了最好，通过`StreamBuilder`精确控制了页面的最小刷新粒度
+
+#### 可扩展性对比
+
+数据流方案除了完成管理状态以外，应该具备更好的扩展性，应对不同需求的业务功能，这里们对每一个方案中新增一个功能：一个日志监控功能，打印出状态改变时新旧状态值；
+
+-   得益于 redux 强大的中间件特性，flutter-redux 和 fish-redux 眨眼功夫便可实现：
+
+```dart
+void  logMiddware = (store) => (next) => (action) {
+  final T prevState = store.getState();
+  print('prev-state: ${prevState}');
+  next(action);
+  final T nextState = store.getState();
+  print('next-state: ${nextState}');
+}
+```
+
+-   而 fish-redux 除了自身封装就有 logMiddware 中间件以外，更是针对 view 层、effect 层、adapter 层都支持了中间件处理，这能帮我们更容易的去处理一些其他业务；
+
+-   对于剩余的三种，在实现过程中会发现，发现比较困难，你不得不重写（extend）一些已有的 api 或者单独去实现这样一个通用的逻辑
+
+## 总结
+
+说了这么多，我们现在来回答之前的问题，用哪种方案最为合适。
+
+-   首先淘汰 scoped-model, 因为其做为数据流方案提供便捷的 api 非常有限，实现源码也只是简单的封装了 inheritedWidget, 而与之类似的 provider 适用于更多的业务场景，没有一个理由不用 provider 而用它；
+-   其次淘汰 flutter-redux, 做为 redux 的衍生框架，并未对 store 进行拆分，在更新 state 的性能方面做的非常有限，这些都需要开发者自己封装，与之类似的 fish-redux，则更成熟，在涵盖了所有 redux 优化方面，还有在列表性能，以及其他能想到的扩张性方面做了非常多的工作，这一点也是其他方案所不具备的特点，能让我们在实际业务中信手捏来；
+
+#### 剩下的就是 **fish-redux** **BLoC** **provider**
+
+三个各有特点，其定位也有所不通，综合上面的各项对比以及各自特点，笔者推荐:
+
+-   中大型应用、大型应用： **fish-redux**
+    由于其定位就是框架级别的解决方案，则能应对各类业务场景，目前的 flutter 生态来说 fish-redux 非常适合
+
+-   中型应用、以及中小型应用: **BLoC** **Provider**
+    这两者在编码量上差不多，BLoC 在控制重绘粒度上控制的最好, 不管是哪个都足以应对中小型状态管理，可以更具自己的偏好作出选择，非要作出胜负的话笔者更倾向于 BLoC;
+
+-   小型应该： 没必要接入任何数据流方案

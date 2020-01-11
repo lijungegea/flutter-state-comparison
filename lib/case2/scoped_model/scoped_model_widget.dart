@@ -25,6 +25,7 @@ class _ScopedModelWidgetState extends State<ScopedModelWidget> {
 
   @override
   Widget build(BuildContext context) {
+    print('----------------------> scoped_model item rebuild');
     return ScopedModel<StatsModel>(
       model: _model,
       child: LayoutBuilder(
@@ -43,7 +44,7 @@ class _ScopedModelWidgetState extends State<ScopedModelWidget> {
                   child: ScopedModelDescendant<StatsModel>(builder:
                       (BuildContext context, Widget child, StatsModel model) {
                     List<double> data = model.stats;
-
+                    print('----------------------> scoped_model stas rebuild');
                     return Padding(
                       padding: const EdgeInsets.all(
                         8.0,
@@ -63,7 +64,7 @@ class _ScopedModelWidgetState extends State<ScopedModelWidget> {
                     child: ScopedModelDescendant<StatsModel>(builder:
                         (BuildContext context, Widget child, StatsModel model) {
                       bool isActive = model.isTimerOn;
-
+                      print('----------------------> scoped_model btn rebuild');
                       return RaisedButton(
                         child: Text(isActive ? 'Stop' : 'Start'),
                         onPressed: () =>

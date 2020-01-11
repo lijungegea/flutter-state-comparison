@@ -25,7 +25,7 @@ class _StatsWidgetState extends State<BlocWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('-------------------------------> bloc widget build');
+    print('-------------------------------> bloc item build');
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(

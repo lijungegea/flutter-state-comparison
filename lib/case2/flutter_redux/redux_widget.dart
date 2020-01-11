@@ -16,6 +16,7 @@ class ReduxWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('flutter redux item rebuild…… $panelIndex');
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(
@@ -39,7 +40,6 @@ class ReduxWidget extends StatelessWidget {
                       store.state.panelsList[panelIndex].stats);
                 }, builder: (BuildContext context,
                             ReduxWidgetStatsViewModel model) {
-                  print('item rebuild…… $panelIndex');
                   List<double> data =
                       (model.data == null || model.data.length == 0)
                           ? [1.0]
@@ -71,6 +71,7 @@ class ReduxWidget extends StatelessWidget {
                     );
                   }, builder: (BuildContext context,
                           ReduxWidgetButtonViewModel model) {
+                    print('flutter redux item btn rebuild…… $panelIndex');
                     return RaisedButton(
                       child: Text(model.isActive ? 'Stop' : 'Start'),
                       onPressed: () =>

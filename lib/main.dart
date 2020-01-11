@@ -13,7 +13,7 @@ import 'case2/provider/Provider_app.dart';
 
 void main() {
   // mainCase2RxBloc();
-  // mainCase2ScopedModel();
+  mainCase2ScopedModel();
   // mainCase2Redux();
   // mainCase2FishRedux();
   // mainCase2FishAdaptorRedux();
@@ -21,7 +21,7 @@ void main() {
   // mainCase2Hook();
   // mainBlocAddOne();
   // mainMyStateFulProvider();
-  mainMyAnimationProvider();
+  // mainMyAnimationProvider();
 }
 
 void mainCase2RxBloc() {

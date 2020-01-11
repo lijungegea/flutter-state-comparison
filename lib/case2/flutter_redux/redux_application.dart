@@ -21,7 +21,7 @@ class _Case2ReduxApplicationState extends State<Case2ReduxApplication> {
       case2Reducer,
       initialState: ApplicationState.initial(),
       middleware: <Middleware<ApplicationState>>[
-        tickerMiddleware,
+        // tickerMiddleware,s
         loggerMiddleware,
       ],
     );

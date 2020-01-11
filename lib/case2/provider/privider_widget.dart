@@ -25,38 +25,39 @@ class _StatsWidgetState extends State<ProviderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    print('----------------------> provider widget rebuild');
+    print('----------------------> provider item rebuild');
     StatsProvider _statsProvider =
         Provider.of<Case2PageModel>(context).widgets[widget.index];
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         return Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.white,
-                width: 1.0,
-              ),
-              color: Colors.black,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.white,
+              width: 1.0,
             ),
-            child: ChangeNotifierProvider.value(
-              value: _statsProvider,
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    child: Padding(
-                        padding: const EdgeInsets.all(
-                          8.0,
-                        ),
-                        child: _SparkLine()),
-                  ),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                        padding: const EdgeInsets.all(8.0), child: _Btn()),
-                  )
-                ],
-              ),
-            ));
+            color: Colors.black,
+          ),
+          child: ChangeNotifierProvider.value(
+            value: _statsProvider,
+            child: Stack(
+              children: <Widget>[
+                Container(
+                  child: Padding(
+                      padding: const EdgeInsets.all(
+                        8.0,
+                      ),
+                      child: _SparkLine()),
+                ),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0), child: _Btn()),
+                )
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -66,6 +67,8 @@ class _StatsWidgetState extends State<ProviderWidget> {
 class _Btn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('----------------------> provider btn rebuild');
+
     return RaisedButton(
       child: Text(
           Provider.of<StatsProvider>(context).isTimerOn ? 'Stop' : 'Start'),
@@ -80,6 +83,7 @@ class _Btn extends StatelessWidget {
 class _SparkLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    print('----------------------> provider stas rebuild');
     return Sparkline(
       data: Provider.of<StatsProvider>(context).stats,
       pointsMode: PointsMode.all,
