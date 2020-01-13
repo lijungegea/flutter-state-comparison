@@ -136,7 +136,7 @@ effect 的始祖正是强大的 redux 中间件`redux-saga`, 它是一堆异步�
 ### flutter-redux
 
 flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux，当然前面提到的几点性能优化的地方，包括中间件的编写，也可以由开发人员自由发挥。
-由于 redux 三大原则之一：单一数据源，整个 app 只有一个 store，默认情况下，改变某一个子组件状态，就要重新生成一个新的 store 才会刷新页面，当然，这也会造成整个页面的重新渲染。为了解决这个必须解决的矛盾，就要对 store 进行细颗粒度的分割，某以页面或组件只依赖某一个子 state;
+由于 redux 三大原则之一：单一数据源，整个 app 只有一个 store，默认情况下，改变某一个子组件状态，就要重新生成一个新的 store 才会刷新页面，当然，这也会造成整个页面的重新渲染。为了解决这个必须解决的矛盾，就要对 store 进行细颗粒度的分割，某一页面或组件只依赖某一个子 state;
 开始介绍其简单的默认用法：
 
 #### 提供者 StoreProvider
@@ -174,7 +174,7 @@ flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux�
 
 ### fish-redux
 
-如果说 flutter-redux 只是一个解决数据流的第三方依赖库的话，fish-redux 才是真正意义上的应用级数据流框架，它直接改变了应用的编码架构，范式结构。并且在上面提到的各种性能优化 fish-redux 也几乎做到了最优(state 数据层计算方面), 在便于组件拆分和长列表渲染方面也做了相关优化(dependencies)。fish-redux 是阿里闲鱼解决方案，官方文档依旧是很难不懂，对于初学者学习有一定难度，不过 fish-redux 并没有破坏原有 redux 结构，整体编码思想还是跟 redux 保持一直。只是在其基础上结合 flutter 生命周期特性等做了扩展和优化，下面简单介绍其基础用法和相关特性：
+如果说 flutter-redux 只是一个解决数据流的第三方依赖库的话，fish-redux 才是真正意义上的应用级数据流框架，它直接改变了应用的编码架构，范式结构。并且在上面提到的各种性能优化 fish-redux 也几乎做到了最优(state 数据层计算方面), 在便于组件拆分和长列表渲染方面也做了相关优化(dependencies)。fish-redux 是阿里闲鱼解决方案，官方文档依旧是很难不懂，对于初学者学习有一定难度，不过 fish-redux 并没有破坏原有 redux 结构，整体编码思想还是跟 redux 保持一致。只是在其基础上结合 flutter 生命周期特性等做了扩展和优化，下面简单介绍其基础用法和相关特性：
 
 > vscode 开发者可以下载插件**fish-redux-template**，目录点击右键直接创建对应模版，非常方便。
 > 最新版 fish-redux 是 v0.3.1,新旧版本用法差异比较大，我们以最新版为例！
@@ -341,7 +341,7 @@ stream 可以形象的理解为：考虑一个具有 2 个末端的管道，只�
 
 ![BLoC 分离UI与逻辑：](https://www.didierboelens.com/images/streams_bloc.png)
 
-可以看出 Widget 将事件发送至 BLoC，BLoC 以 stream 的形式通知 Widget，整个 BLoC 业务逻辑保持绝对独立，与 Widget 没任何关联。得益于 BLoC 与 Ui 的完全分离，
+可以看出 Widget 将事件发送至 BLoC，BLoC 以 stream 的形式通知 Widget，整个 BLoC 业务逻辑保持绝对独立，与 Widget 没任何关联，这得益于 BLoC 与 Ui 的完全分离。
 实际上，BLoC 模式最初是为了允许重用完全相同的代码而与平台无关的：Web 应用程序，移动应用程序，后端。
 
 一个简单的 Increment 功能的 BLoC 例子：
@@ -461,14 +461,14 @@ class ShareDataWidget extends InheritedWidget {
 }
 ```
 
-#### 通知 Widget 刷新
+#### 2. 通知 Widget 刷新
 
 他们都是通过 flutter 自身提供的`Listenable`通知刷新，其整个通知重新构建的过程为：
 
 -   继承至`Listenable`的 model 数据改变时，自动将 update 函数（注：能引起页面重构的函数）成员注入到 listener list;
 -   紧接着调用 notifyListeners 通知刷新，也就是立即触发 update 函数，使页面重新渲染
 
-当然除了自己构建 update 函数,也可以直接使用`AnimationBuilder`（其实其参数`animation`也是个`Listenable`），这也是除了 setState，能让页面重新渲染的另一种方式。
+当然除了自己构建 update 函数,也可以直接使用`AnimationBuilder`（其实其参数`animation`也是个`Listenable`），这也是除了 setState 和 stream，能让页面重新渲染的另一种方式。
 
 ```dart
 // NOTE: 本质上 ChangeNotifier 只做了一件事：model改变时添加listener, 然后model调用notifyListeners触发更新函数update，也就是setState
@@ -635,7 +635,7 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 可以看出：
 
 -   由于 redux 单一数据源的原因，flutter-redux 的某一细微的状态改变，则会造成整个页面级的重新绘制，以至于你不得不对 store 进行拆分后再组合
--   而 fish-redux 以及帮我们做了这一步，可以做到只刷新某一个 item。
+-   而 fish-redux 已经帮我们做了这一步，可以做到只刷新某一个 item。
 -   provider 和 scoped-model 每个 item 都维护这自己 model，通过提供的连接器 api 可以控制到只刷新某一部分，但要做到更细粒度的划分，也不得不将 UI 层级拆分的更细。
 -   BLoC 这一点做到了最好，通过`StreamBuilder`精确控制了页面的最小刷新粒度
 
