@@ -1,4 +1,4 @@
-# BLoC - ScopedModel - Redux - fishRedux - provider - Comparison
+# BLoC - ScopedModel - Redux - fishRedux - Provider - Comparison
 
 ## 前言
 
@@ -605,10 +605,10 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 
 #### 文件数量对比
 
-|          | flutter-redux                                    | fish-redux                                 | rxdart(BLoC)                            | provider                                    | scoped-model                              |
-| -------- | ------------------------------------------------ | ------------------------------------------ | --------------------------------------- | ------------------------------------------- | ----------------------------------------- |
-| 文件截图 | ![fish-redux](assets/flutter_redux_file_num.png) | ![fish-redux](assets/fish_file_number.png) | ![fish-redux](assets/bloc_file_num.png) | ![fish-redux](assets/provider_file_num.png) | ![fish-redux](assets/scoped_file_num.png) |
-| 文件数量 | 9                                                | 15                                         | 4                                       | 5                                           | 4                                         |
+|          | flutter-redux                                                                                                                 | fish-redux                                                                                                              | rxdart(BLoC)                                                                                                         | provider                                                                                                                 | scoped-model                                                                                                           |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| 文件截图 | ![fish-redux](https://raw.githubusercontent.com/lijungegea/flutter-state-comparison/master/assets/flutter_redux_file_num.png) | ![fish-redux](https://raw.githubusercontent.com/lijungegea/flutter-state-comparison/master/assets/fish_file_number.png) | ![fish-redux](https://raw.githubusercontent.com/lijungegea/flutter-state-comparison/master/assets/bloc_file_num.png) | ![fish-redux](https://raw.githubusercontent.com/lijungegea/flutter-state-comparison/master/assets/provider_file_num.png) | ![fish-redux](https://raw.githubusercontent.com/lijungegea/flutter-state-comparison/master/assets/scoped_file_num.png) |
+| 文件数量 | 9                                                                                                                             | 15                                                                                                                      | 4                                                                                                                    | 5                                                                                                                        | 4                                                                                                                      |
 
 #### 代码逻辑对比
 
