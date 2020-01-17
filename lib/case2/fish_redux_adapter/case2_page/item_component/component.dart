@@ -20,9 +20,9 @@ class ItemComponent extends Component<ItemState> {
             },
             wrapper: (Widget w) {
               return Container(
-                margin: EdgeInsets.only(top: 20),
+                // margin: EdgeInsets.only(top: 20),
                 child: w,
-                color: Colors.red,
+                // color: Colors.red,
               );
             });
 }

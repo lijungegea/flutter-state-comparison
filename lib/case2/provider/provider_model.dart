@@ -14,7 +14,7 @@ class StatsProvider with ChangeNotifier {
   /// Starts the timer
   ///
   void start([bool notify = true]) {
-    // _timer = Timer(Duration(seconds: 1), _onTick);
+    _timer = Timer(Duration(seconds: 1), _onTick);
     isTimerOn = true;
 
     if (notify == true) {
@@ -26,12 +26,12 @@ class StatsProvider with ChangeNotifier {
   /// Stops the timer
   ///
   void stop() {
-    // if (_timer != null) {
-    isTimerOn = false;
-    _timer?.cancel();
-    _timer = null;
-    notifyListeners();
-    // }
+    if (_timer != null) {
+      isTimerOn = false;
+      _timer?.cancel();
+      _timer = null;
+      notifyListeners();
+    }
   }
 
   ///

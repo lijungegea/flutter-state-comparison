@@ -29,11 +29,24 @@ Widget buildView(Case2State state, Dispatch dispatch, ViewService viewService) {
       ],
     ),
     body: Container(
-      child: GridView.builder(
-          itemCount: adapter.itemCount,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-          itemBuilder: adapter.itemBuilder),
+      child: CustomScrollView(
+        slivers: <Widget>[
+          // SliverToBoxAdapter(
+          //     child: adapter.itemBuilder(viewService.context, 0)),
+          new SliverGrid(
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            delegate: new SliverChildBuilderDelegate(adapter.itemBuilder,
+                childCount: adapter.itemCount),
+          )
+        ],
+      ),
     ),
   );
 }
+// GridView.builder(
+//           itemCount: adapter.itemCount,
+//           gridDelegate:
+//               SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+//           itemBuilder: adapter.itemBuilder)

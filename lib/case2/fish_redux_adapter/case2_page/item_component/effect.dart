@@ -7,11 +7,15 @@ import 'state.dart';
 
 Effect<ItemState> buildEffect() {
   return combineEffects(<Object, Effect<ItemState>>{
-    ItemAction.startStopPanelAction: _startStopPanelAction
+    ItemAction.startStopPanelAction: _startStopPanelAction,
+    Lifecycle.disappear: (Action action, Context<ItemState> ctx) {
+      print('1111111111');
+    }
   });
 }
 
 Timer _timer;
+
 void _startStopPanelAction(Action action, Context<ItemState> ctx) {
   if (action.type == ItemAction.startStopPanelAction) {
     void _startTimer() {

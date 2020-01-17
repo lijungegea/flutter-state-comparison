@@ -20,15 +20,24 @@ class Case2ProviderPage extends StatelessWidget {
         ],
       ),
       body: Container(
-        child: GridView.builder(
-          itemCount: _case2PageModel.widgets.length,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-          itemBuilder: (BuildContext _context, int index) {
-            return _case2PageModel.widgets
-                .map((f) => ProviderWidget(index))
-                .toList()[index];
-          },
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverToBoxAdapter(
+              child: ProviderWidget(0),
+            ),
+            new SliverGrid(
+              gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
+              delegate: new SliverChildBuilderDelegate(
+                  (BuildContext context, int index) {
+                return _case2PageModel.widgets
+                    .sublist(1)
+                    .map((f) => ProviderWidget(index + 1))
+                    .toList()[index];
+              }, childCount: _case2PageModel.widgets.length - 1),
+            )
+          ],
         ),
       ),
     );

@@ -1,9 +1,12 @@
 import 'package:fish_redux/fish_redux.dart';
+import 'package:redux_scopedmodel_bloc/case2/fish_redux_adapter/case2_page/action.dart';
 import 'state.dart';
 
 Effect<Case2State> buildEffect() {
   return combineEffects(<Object, Effect<Case2State>>{
-    // Case2Action.startStopPanelAction: _addStatusAction
+    Lifecycle.disappear: (Action action, Context<Case2State> ctx) {
+      print('1111111111');
+    }
   });
 }
 

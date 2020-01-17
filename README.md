@@ -1,4 +1,4 @@
-# BLoC - ScopedModel - Redux - fishRedux - Provider - Comparison
+# BLoC - ScopedModel - flutterRedux - fishRedux - Provider - Comparison
 
 ## 前言
 
@@ -30,7 +30,7 @@ flutter 使用了与很多前端开发框架相同的开发思想，都是声明
 
 -   `BLoC`： 流式响应式编程数据流
 -   `ScopedModel`： 典型的基于`InheritedWidget`将 数据 **model** 扩展共享至其子代
--   `Redux`：也就是 flutter-redux，经典的 redux 解决方案
+-   `Flutter-redux`：经典的 redux 解决方案
 -   `Provider` 谷歌推荐的数据流方案
 -   `Fish-redux`：阿里咸鱼技术数据流框架
 
@@ -129,6 +129,31 @@ effect 的始祖正是强大的 redux 中间件`redux-saga`, 它是一堆异步�
 `dispatch(action(type: 'A'))`------> `effectMiddleWare({A: (){ 执行异步函数……}})` ----->
 `reducer(oldState, action)`------> `newState`
 
+那么简单的 effect 实现雏形如下
+
+```dart
+class Store {}
+typedef void Dispatch(Action action);
+class Action {
+  @required String type;
+  dynamic paylaod;
+}
+enum ItemAction { A, B }
+/// effect middleware
+void _effect(Store store) => (Dispatch next) => (Action action) {
+      Map<Object, dynamic> _mapFn = {
+        ItemAction.A: (Action action) {
+          //do something……
+        },
+        ItemAction.B: (Action action) {
+          //do something……
+        }
+      };
+      _mapFn[action.type]();
+      next(action);
+    };
+```
+
 ![redux 整体示意流程图如下：](https://www.didierboelens.com/images/models_redux_animation.gif)
 
 熟悉了 redux 后我们看 redux 在 flutter 应用上的两个数据流解决方案：**flutter-redux**与**fish-redux**:
@@ -139,7 +164,20 @@ flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux�
 由于 redux 三大原则之一：单一数据源，整个 app 只有一个 store，默认情况下，改变某一个子组件状态，就要重新生成一个新的 store 才会刷新页面，当然，这也会造成整个页面的重新渲染。为了解决这个必须解决的矛盾，就要对 store 进行细颗粒度的分割，某一页面或组件只依赖某一个子 state;
 开始介绍其简单的默认用法：
 
-#### 提供者 StoreProvider
+#### 初始化 Store
+
+```dart
+applicationStore = Store<ApplicationState>(
+  case2Reducer,
+  initialState: ApplicationState.initial(),
+  middleware: <Middleware<ApplicationState>>[
+    // tickerMiddleware,s
+    loggerMiddleware,
+  ],
+);
+```
+
+#### StoreProvider: 将 store 注入到 app
 
 > **StoreProvider** 做为列表唯一数据源 `store`提供者，只要`store`改变，后续依赖子组件都会重新构建
 
@@ -154,7 +192,7 @@ flutter-redux 是 flutter 版本的 redux, 完全保留了原滋原味的 redux�
     }
 ```
 
-#### 接收者 StoreConnector
+#### StoreConnector: 链接需要用到数据的页面
 
 > **StoreConnector** 链接`store`，取出所要用到的数据
 
@@ -207,7 +245,7 @@ page 是页面级别的根文件, 继承 fish 父类 Page, 直接调用父类构
 
 -   `middleware`: 对应 redux 中间件，其用法和原生 redux 如出一辙
 -   `shouldUpdate`: 更细粒度的控制某个 item 是否更新
--   `wrapper`: item 的高阶组件函数，非常方便！
+-   `wrapper`: item 的高阶组件函数
     ……
     还有很多，这里就不一一列出了，可以说你想得到的和你没想到的，fish 帮我们做了更多。
 
@@ -250,8 +288,8 @@ class Case2Page extends Page<Case2State, Map<String, dynamic>> {
 对应 page 里面的 effect, 这里除了拦截接收到自定义 action 做一些异步操作以外，还拦截了 flutter 整个生命周期钩子，相当于生命周期钩子函数，实际业务中用起来非常方便,
 值得注意的是，除了 flutter statefulWidget 生命周期以外，fish 还额外注入了三个常用的额外生命周期：
 
--   `Lifecycle.appear`: 列表组件在视图中显示时的触发
--   `Lifecycle.disappear`: 列表组件在视图中隐藏时的触发
+-   `Lifecycle.appear`: adaptor 列表组件在视图中显示时的触发
+-   `Lifecycle.disappear`: adaptor 列表组件在视图中隐藏时的触发
 -   `Lifecycle.didChangeAppLifecycleState`: 继承 AppLifecycleState， 在切换前台后台时触发
 
 ```dart
@@ -289,7 +327,7 @@ class ItemState implements Cloneable<ItemState> {
 //}
 ```
 
-一种是关联 adaptor(要将数据传递给 adaptor)：
+一种是关联 adaptor(要将数据传递给 adaptor)：两种 adaptor 类型，一个是 `MutableSource`用于可变数据，一种是`ImmutableSource` 用于不可变数据
 
 ```dart
 class Case2State extends MutableSource implements Cloneable<Case2State> {
@@ -324,9 +362,7 @@ Case2State initState(Map<String, dynamic> args) {
 
 ### BLoC
 
-BLoC(Business Logic Component) 是一种编程模式，由 google 在 2018 年 1 月首次提出，它甚至不需要任何外部库或程序包，因为它仅依赖于 Streams 的使用。但是，为了获得更友好的功能，通常将其与 RxDart 软件包结合使用。
-
-flutter 里面的 BLoC 的实现依赖于 dart API **Stream**
+BLoC(Business Logic Component) 是一种编程模式，由 google 在 2018 年 1 月首次提出，在 flutter 里面它甚至不需要任何外部库或程序包，因为它仅依赖于 **Streams** 的使用。但是，为了获得更友好的更便利的功能，通常将其与 RxDart 软件包结合使用。
 
 #### 关于 stream
 
@@ -398,7 +434,7 @@ class BlocAddOneApplication extends StatelessWidget {
 }
 ```
 
-在业务页面只需发出对应的动作即可，具体实现的业务逻辑与页面毫无关系，UI 与业务逻辑高度分离；其来的优点显而易见：
+在业务页面只需发出对应的动作即可，具体实现的业务逻辑与页面毫无关系，UI 与业务逻辑高度分离；带来的优点显而易见：
 
 -   便于逻辑测试，这里只测试 BLoC 逻辑即可，与页面无关；
 -   高度独立的逻辑独立，不与任何 UI 耦合，带来更好的逻辑扩展
@@ -661,6 +697,8 @@ void  logMiddware = (store) => (next) => (action) {
 
 ## 总结
 
+> TODO: 漏掉一个 MoBx，后面补上，至少这个方案在前端生态还是比较强势
+
 说了这么多，我们现在来回答之前的问题，用哪种方案最为合适。
 
 -   首先淘汰 scoped-model, 因为其做为数据流方案提供便捷的 api 非常有限，实现源码也只是简单的封装了 inheritedWidget, 而与之类似的 provider 适用于更多的业务场景，没有一个理由不用 provider 而用它；
@@ -674,6 +712,6 @@ void  logMiddware = (store) => (next) => (action) {
     由于其定位就是框架级别的解决方案，则能应对各类业务场景，目前的 flutter 生态来说 fish-redux 非常适合
 
 -   中型应用、以及中小型应用: **BLoC** **Provider**
-    这两者在编码量上差不多，BLoC 在控制重绘粒度上控制的最好, 不管是哪个都足以应对中小型状态管理，可以根据自己的偏好作出选择，非要作出胜负的话笔者更倾向于 BLoC;
+    这两者在编码量上差不多，BLoC 在控制重绘粒度上控制的最好, 不管是哪个都足以应对中小型状态管理，可以根据自己的偏好作出选择，非要作出胜负的话笔者更倾向于 BLoC, Provider 更新太快了，很多 api 目前不稳定;
 
 -   小型应用： 没必要接入任何数据流方案

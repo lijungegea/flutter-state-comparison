@@ -39,15 +39,30 @@ class _BlocPageState extends State<BlocPage> {
         ],
       ),
       body: Container(
-        child: GridView.builder(
-          itemCount: _widgets.length,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
-          itemBuilder: (BuildContext context, int index) {
-            return _widgets[index];
-          },
-        ),
-      ),
+          child: CustomScrollView(
+        slivers: <Widget>[
+          // SliverToBoxAdapter(
+          //   child: BlocWidget(),
+          // ),
+          new SliverGrid(
+            gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            delegate: new SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+              return _widgets[index];
+            }, childCount: _widgets.length),
+          )
+        ],
+      )),
     );
   }
 }
+//  GridView.builder(
+//           itemCount: _widgets.length,
+//           gridDelegate:
+//               SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+//           itemBuilder: (BuildContext context, int index) {
+//             return _widgets[index];
+//           },
+//         ),
