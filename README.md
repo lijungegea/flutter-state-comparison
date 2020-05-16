@@ -637,7 +637,7 @@ class _ProviderRouteState extends State<MyProviderRoute> {
 
 然后我们基于实现同样功能的一个例子，然后从以下几个维度进行对比评测：
 
-![例子：](https://www.didierboelens.com/images/models_case_2.gif)
+![例子：](https://github.com/lijungegea/flutter-state-comparison/blob/master/assets/case.png)
 
 #### 文件数量对比
 
