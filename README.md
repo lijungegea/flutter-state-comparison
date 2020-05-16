@@ -4,7 +4,7 @@
 
 flutter 使用了与很多前端开发框架相同的开发思想，都是声明式编程框架：
 
-![BLoC 整体示意流程图如下：](https://flutter.cn/assets/development/data-and-backend/state-mgmt/ui-equals-function-of-state-54b01b000694caf9da439bd3f774ef22b00e92a62d3b2ade4f2e95c8555b8ca7.png)
+![](https://flutter.cn/assets/development/data-and-backend/state-mgmt/ui-equals-function-of-state-54b01b000694caf9da439bd3f774ef22b00e92a62d3b2ade4f2e95c8555b8ca7.png)
 
 其中应用当前状态与应用的当前 UI 展示一一对应；状态改变时将会导致页面 UI 的重绘；那么管理状态就成了 flutter app 最为重要最为频繁的操作之一，首先看看 flutter 自身的状态管理：
 
@@ -154,7 +154,7 @@ void _effect(Store store) => (Dispatch next) => (Action action) {
     };
 ```
 
-![redux 整体示意流程图如下：](https://www.didierboelens.com/images/models_redux_animation.gif)
+![redux 整体示意流程图如下：](https://www.didierboelens.com/images/blog/models_redux_animation.gif)
 
 熟悉了 redux 后我们看 redux 在 flutter 应用上的两个数据流解决方案：**flutter-redux**与**fish-redux**:
 
@@ -468,7 +468,7 @@ class CounterPage extends StatelessWidget {
 }
 ```
 
-![BLoC 整体示意流程图如下：](https://www.didierboelens.com/images/models_bloc_animation.gif)
+![BLoC 整体示意流程图如下：](https://www.didierboelens.com/images/blog/models_bloc_animation.gif)
 
 ### Provider 与 Scoped_model
 
@@ -529,7 +529,7 @@ class _ChangeNotifierProviderState<T extends ChangeNotifier>
 }
 ```
 
-![Provider 与 Scoped_model整体示意流程图如下：](https://www.didierboelens.com/images/models_scopedmodel_animation.gif)
+![Provider 与 Scoped_model整体示意流程图如下：](https://www.didierboelens.com/images/blog/models_scopedmodel_animation.gif)
 
 原理过后我们实现一个简单 Increment:
 
