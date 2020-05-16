@@ -375,7 +375,7 @@ stream 可以形象的理解为：考虑一个具有 2 个末端的管道，只�
 -   为了将某些内容插入**Stream**中，**StreamController**公开了可通过接收器属性访问的 api`Sink`
 -   为了将某些内容流出**Stream**中，**StreamController**公开了可通过接收器属性访问的 api`Stream`
 
-![BLoC 分离UI与逻辑：](https://www.didierboelens.com/images/streams_bloc.png)
+![BLoC 分离UI与逻辑：](https://segmentfault.com/img/remote/1460000016426222)
 
 可以看出 Widget 将事件发送至 BLoC，BLoC 以 stream 的形式通知 Widget，整个 BLoC 业务逻辑保持绝对独立，与 Widget 没任何关联，这得益于 BLoC 与 Ui 的完全分离。
 实际上，BLoC 模式最初是为了允许重用完全相同的代码而与平台无关的：Web 应用程序，移动应用程序，后端。
