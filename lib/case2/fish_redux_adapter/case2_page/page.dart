@@ -1,5 +1,4 @@
 import 'package:fish_redux/fish_redux.dart';
-import 'bigCell_component/component.dart';
 import 'effect.dart';
 import 'list_adapter/adapter.dart';
 import 'reducer.dart';
@@ -16,7 +15,7 @@ class Case2Page extends Page<Case2State, Map<String, dynamic>> {
           dependencies: Dependencies<Case2State>(
               adapter: NoneConn<Case2State>() + Case2ListAdapter(),
               slots: <String, Dependent<Case2State>>{
-                'bigcell': BigCellConnector() + BigCellComponent()
+                // 'bigcell': BigCellConnector() + BigCellComponent()
               }),
           middleware: <Middleware<Case2State>>[],
         );

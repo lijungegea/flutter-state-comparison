@@ -1,5 +1,5 @@
 import 'package:fish_redux/fish_redux.dart';
-import 'package:flutter/material.dart' hide Action;
+import 'package:flutter/material.dart' hide Action, Page;
 
 import 'global_store/state.dart';
 import 'global_store/store.dart';
@@ -93,3 +93,40 @@ EffectMiddleware<T> _pageAnalyticsMiddleware<T>({String tag = 'redux'}) {
     };
   };
 }
+
+class PersistAcion {
+  const PersistAcion(this.type, {this.payload});
+  final Object type;
+  final dynamic payload;
+}
+
+// class Persistor<T>{
+
+// }
+
+// final persistor = Persistor<T>(
+//   storage: FlutterStorage(),
+//   serializer: JsonSerializer<T>(T.fromJson),
+// );
+
+//     Middleware<T> persistMiddleware = (
+//         {Dispatch dispatch, Get<T> getState}) {
+//       return (Dispatch next) {
+//         return (Action action) {
+//           next(action);
+//           if (action is PersistAction) {
+//             print('PersistState: ${action.type} ${action.payload}');
+//             persistor.save(getState());
+//           }
+//         };
+//       };
+//     };
+
+// var initialState;
+// try {
+//   initialState = await persistor.load();
+// } on SerializationException {
+//   // 第一次加载程序时，还没有任何数据，加载数据会失败
+//   // 此时使用初始化数据
+//   initialState = PageState();
+// }

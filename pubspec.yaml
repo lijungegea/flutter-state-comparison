@@ -15,9 +15,10 @@ dependencies:
     rxdart:
     flutter_sparkline:
     cupertino_icons: ^0.1.2
-    fish_redux: ^0.3.1
+    fish_redux: ^0.3.3
     provider: ^3.2.0
     flutter_hooks: ^0.7.0
+    shared_preferences: ^0.5.6+1
 
 dev_dependencies:
     flutter_test:

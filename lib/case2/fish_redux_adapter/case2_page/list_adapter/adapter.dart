@@ -1,5 +1,4 @@
 import 'package:fish_redux/fish_redux.dart';
-import 'package:redux_scopedmodel_bloc/case2/fish_redux_adapter/case2_page/bigCell_component/component.dart';
 import 'package:redux_scopedmodel_bloc/case2/fish_redux_adapter/case2_page/item_component/component.dart';
 import 'package:redux_scopedmodel_bloc/case2/fish_redux_adapter/case2_page/state.dart';
 
@@ -11,7 +10,6 @@ class Case2ListAdapter extends SourceFlowAdapter<Case2State>
       : super(
           pool: <String, Component<Object>>{
             'item': ItemComponent(),
-            'cell': BigCellComponent()
           },
           reducer: buildReducer(),
         );

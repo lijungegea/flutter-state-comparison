@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:redux_scopedmodel_bloc/bloc_add_one/app.dart';
 import 'package:redux_scopedmodel_bloc/case2/flutter_redux/redux_application.dart';
@@ -40,7 +42,7 @@ void mainCase2FishRedux() {
   runApp(case2FishRuduxApp());
 }
 
-void mainCase2FishAdaptorRedux() {
+void mainCase2FishAdaptorRedux() async {
   runApp(case2FishRuduxAdaptorApp());
 }
 
